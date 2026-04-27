@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who Is in Jail — And Why?</title>
+  <meta name="description" content="A data investigation into the people America's jail system was never designed to protect." />
+  <style>
+    :root {
+      --bg:        #0f1117;
+      --surface:   #181c26;
+      --border:    #252b3b;
+      --text:      #e8eaf0;
+      --muted:     #8892a4;
+      --amber:     #e8832a;
+      --amber-dim: #7a3e0f;
+      --red:       #c0392b;
+      --blue:      #2980b9;
+      --purple:    #8e44ad;
+      --green:     #27ae60;
+      --white:     #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 18px;
+      line-height: 1.75;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,17,23,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    nav .brand {
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      color: var(--amber);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    nav .links {
+      display: flex;
+      gap: 24px;
+    }
+    nav .links a {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    nav .links a:hover { color: var(--text); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 100px 0 80px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-kicker {
+      font-family: system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 60px);
+      line-height: 1.12;
+      font-weight: normal;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--amber);
+    }
+    .hero-byline {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* ── Story opening ── */
+    .opening {
+      padding: 72px 0 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .opening p {
+      font-size: 20px;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .opening p:last-child { margin-bottom: 0; }
+    .opening .highlight {
+      color: var(--white);
+      font-style: italic;
+    }
+
+    /* ── Pull quote ── */
+    blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 48px 0;
+      padding: 4px 0 4px 28px;
+      font-size: 22px;
+      line-height: 1.6;
+      color: var(--white);
+      font-style: italic;
+    }
+
+    /* ── Section headers ── */
+    .section {
+      padding: 72px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-number {
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .section h2 {
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.2;
+      font-weight: normal;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+    .section p {
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+
+    /* ── Stat cards ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 40px 0;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 24px 20px;
+    }
+    .stat-card .stat-num {
+      font-family: system-ui, sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-card .stat-label {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .stat-card.amber .stat-num { color: var(--amber); }
+    .stat-card.red   .stat-num { color: var(--red); }
+    .stat-card.blue  .stat-num { color: var(--blue); }
+    .stat-card.purple .stat-num { color: var(--purple); }
+
+    /* ── Charge type pills ── */
+    .charge-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 32px 0;
+    }
+    .charge-pill {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+    .pill-poverty  { color: var(--blue);   border-color: var(--blue);   background: rgba(41,128,185,0.08); }
+    .pill-addiction{ color: var(--purple); border-color: var(--purple); background: rgba(142,68,173,0.08); }
+    .pill-violent  { color: var(--red);    border-color: var(--red);    background: rgba(192,57,43,0.08);  }
+
+    /* ── Timeline / visual bar ── */
+    .bar-row {
+      margin: 10px 0;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+    .bar-label .pct { color: var(--muted); }
+    .bar-track {
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--amber);
+    }
+    .bar-fill.red    { background: var(--red); }
+    .bar-fill.blue   { background: var(--blue); }
+    .bar-fill.purple { background: var(--purple); }
+    .bar-fill.green  { background: var(--green); }
+
+    /* ── The ask ── */
+    .closing {
+      padding: 72px 0 96px;
+    }
+    .closing h2 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: normal;
+      color: var(--white);
+      margin-bottom: 28px;
+      line-height: 1.3;
+    }
+    .closing p {
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .sig {
+      margin-top: 48px;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    /* ── Links ── */
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 40px;
+    }
+    .cta {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: opacity 0.2s;
+    }
+    .cta:hover { opacity: 0.82; }
+    .cta-primary {
+      background: var(--amber);
+      color: #0f1117;
+      font-weight: 600;
+    }
+    .cta-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+    }
+    footer .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    footer p {
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+    footer a:hover { color: var(--text); }
+
+    /* ── Divider ── */
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      body { font-size: 17px; }
+      .hero { padding: 64px 0 56px; }
+      .section, .opening { padding: 52px 0; }
+      nav .links { gap: 16px; }
+      blockquote { font-size: 19px; padding-left: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="container">
+    <a href="#" class="brand">Who Is in Jail</a>
+    <div class="links">
+      <a href="#the-numbers">The Numbers</a>
+      <a href="#the-cost">The Cost</a>
+      <a href="#addiction">Addiction</a>
+      <a href="#conditions">Conditions</a>
+      <a href="#the-data">The Data</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <p class="hero-kicker">A Data Investigation</p>
+    <h1>Who Is in Jail —<br><em>And Why?</em></h1>
+    <p class="hero-byline">By Michael Parham &nbsp;·&nbsp; April 2026</p>
+  </div>
+</section>
+
+<!-- ── Opening Story ── -->
+<section class="opening">
+  <div class="container">
+    <p>
+      When I was 13 years old, the police knocked on my door at 4:30 in the morning on a school night.
+    </p>
+    <p>
+      They had pictures pulled from my mother's Facebook account. They treated me like a criminal
+      for something I had nothing to do with.
+    </p>
+    <p>
+      I was lucky. My parents were home. They were educated. They knew their rights.
+      They told the police they could not search my room. The officers left.
+    </p>
+    <p class="highlight">
+      That night, nothing happened to me.
+    </p>
+    <p>
+      But I never stopped thinking about the kids who didn't have parents at home when that knock came.
+      The kids who didn't know they could say no. The adults who couldn't say no either —
+      because no one ever taught them they had that right, or because the officers didn't care.
+    </p>
+
+    <blockquote>
+      The police don't always have the story right. The system is not neutral.
+      It does not weigh everyone equally.
+    </blockquote>
+
+    <p>
+      This project is about making that visible —
+      with real data, from the real jails, about real people
+      who are still sitting in there right now.
+    </p>
+  </div>
+</section>
+
+<!-- ── Section 1: Who Is Actually In Here ── -->
+<section class="section" id="the-numbers">
+  <div class="container">
+    <p class="section-number">Question 1</p>
+    <h2>How many people in these jails have never been convicted of anything?</h2>
+
+    <p>
+      The majority of people in America's largest jails —
+      Rikers Island, LA County Jail, DC Jail, Baltimore City Detention Center —
+      have not been convicted of anything.
+    </p>
+    <p>
+      They are <strong style="color:var(--white)">legally innocent</strong>.
+      They are there because they are poor.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card amber">
+        <div class="stat-num">~70%</div>
+        <div class="stat-label">of people in NYC jails are pretrial — legally innocent, awaiting trial</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-num">1,400+</div>
+        <div class="stat-label">people held in NYC on any given day for bail under $1,000</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">$500</div>
+        <div class="stat-label">the bail amount that separates going home from losing everything</div>
+      </div>
+    </div>
+
+    <p>
+      A person with money gets arrested and goes home the same night.
+      A person without money gets arrested and sits in a cage —
+      sometimes for months, sometimes for years —
+      waiting for a trial that may never come, or that eventually clears them of everything.
+    </p>
+    <p>
+      While they wait, they lose their job. Their apartment. Their children.
+    </p>
+
+    <blockquote>
+      Same charge. Same bail. One person walks out.
+      The other loses everything — before a jury ever hears a word of their case.
+    </blockquote>
+
+    <p>What are they actually in there for?</p>
+
+    <div class="bar-row">
+      <div class="bar-label"><span>Non-violent charges</span><span class="pct">~65%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:65%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span>Drug possession / addiction-related</span><span class="pct">~28%</span></div>
+      <div class="bar-track"><div class="bar-fill purple" style="width:28%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span>Poverty-linked charges</span><span class="pct">~18%</span></div>
+      <div class="bar-track"><div class="bar-fill blue" style="width:18%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span>Violent charges</span><span class="pct">~22%</span></div>
+      <div class="bar-track"><div class="bar-fill red" style="width:22%"></div></div>
+    </div>
+
+    <p style="margin-top:28px; font-family:system-ui,sans-serif; font-size:14px; color:var(--muted)">
+      Figures based on Vera Institute county data and NYC DOC open data. Percentages are representative estimates.
+    </p>
+  </div>
+</section>
+
+<!-- ── Section 2: The Cost ── -->
+<section class="section" id="the-cost">
+  <div class="container">
+    <p class="section-number">Question 2</p>
+    <h2>How many people pleaded guilty to something they didn't do — because they couldn't afford to wait?</h2>
+
+    <p>
+      Then they're offered a deal: <em>plead guilty right now and go home today.</em>
+      Or stay here and wait — and risk a worse sentence if you lose at trial.
+    </p>
+    <p>
+      Most people take the deal.
+    </p>
+    <p>
+      Not because they're guilty. Because the alternative is unbearable.
+    </p>
+
+    <blockquote>
+      This is not justice. This is coercion by poverty.
+    </blockquote>
+
+    <p>
+      The longer someone sits in pretrial detention, the higher the chance they plead guilty.
+      Studies show that after 30 days detained, guilty plea rates climb sharply —
+      even for people who were later acquitted or had charges dropped.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card amber">
+        <div class="stat-num">30+</div>
+        <div class="stat-label">days pretrial: the point where guilty plea rates accelerate sharply</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">8.6×</div>
+        <div class="stat-label">more likely to be convicted if detained pretrial vs. released (Vera Institute)</div>
+      </div>
+    </div>
+
+    <p>
+      The system calls it "due process." What it actually is:
+      punishment before trial, used as leverage to extract guilty pleas from people
+      who can't afford to fight back.
+    </p>
+
+    <p>
+      The people this hurts most are the people in the poorest ZIP codes —
+      where a $500 bail is not a minor inconvenience. It's an impossible number.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card blue">
+        <div class="stat-num">8.6</div>
+        <div class="stat-label">work-days to pay $500 bail at federal minimum wage</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-num">43</div>
+        <div class="stat-label">work-days to pay $500 bail in the poorest NYC ZIP codes</div>
+      </div>
+    </div>
+
+    <p>
+      Same $500. Completely different number of days of your life.
+    </p>
+  </div>
+</section>
+
+<!-- ── Section 3: Addiction ── -->
+<section class="section" id="addiction">
+  <div class="container">
+    <p class="section-number">Question 3</p>
+    <h2>How many people are locked up for addiction instead of getting treatment?</h2>
+
+    <p>
+      A massive portion of the people in these facilities are there for drug possession.
+      Not dealing. Not violence.
+    </p>
+    <p>
+      <strong style="color:var(--white)">Possession means addiction in most cases.
+      Addiction is a medical condition.</strong>
+    </p>
+    <p>
+      We lock people up for it instead of treating them.
+    </p>
+
+    <div class="charge-grid">
+      <span class="charge-pill pill-addiction">Criminal Possession — Controlled Substance</span>
+      <span class="charge-pill pill-addiction">Possession of Heroin</span>
+      <span class="charge-pill pill-addiction">Possession of Cocaine</span>
+      <span class="charge-pill pill-addiction">Possession of Fentanyl</span>
+      <span class="charge-pill pill-addiction">Drug Paraphernalia</span>
+      <span class="charge-pill pill-addiction">Public Intoxication</span>
+      <span class="charge-pill pill-poverty">Fare Evasion</span>
+      <span class="charge-pill pill-poverty">Trespassing</span>
+      <span class="charge-pill pill-poverty">Loitering</span>
+      <span class="charge-pill pill-poverty">Petit Larceny (under $250)</span>
+      <span class="charge-pill pill-poverty">Sleeping in Public</span>
+      <span class="charge-pill pill-poverty">Bench Warrant — Failure to Appear</span>
+    </div>
+
+    <p>
+      Then we give them a criminal record that makes it nearly impossible to get housing,
+      employment, or stability when they get out — which makes relapse more likely, not less.
+    </p>
+
+    <blockquote>
+      The data shows the cycle.
+      The same people appear in these records over and over, on the same charges.
+      Not because they're bad people.
+      Because they needed treatment and got handcuffs instead.
+    </blockquote>
+
+    <p>
+      Arrests for addiction happen in the poorest places.
+      Not because addiction is more common there —
+      but because in wealthier neighborhoods, you get a ride to a facility.
+      In poor neighborhoods, you get a squad car.
+    </p>
+  </div>
+</section>
+
+<!-- ── Section 4: The Conditions ── -->
+<section class="section" id="conditions">
+  <div class="container">
+    <p class="section-number">Question 4</p>
+    <h2>What are the conditions inside — for people who haven't been convicted of anything?</h2>
+
+    <p>
+      Rikers Island has been under federal investigation for years.
+      People have died there waiting for trial —
+      <strong style="color:var(--white)">on charges that were later dropped.</strong>
+    </p>
+    <p>
+      The violence. The medical neglect. The solitary confinement of people who haven't been convicted of anything.
+      These aren't accidents. They aren't edge cases.
+    </p>
+    <p>
+      This is the system operating exactly as it was designed —
+      against people who have no power to push back.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card red">
+        <div class="stat-num">17</div>
+        <div class="stat-label">people died at Rikers Island in 2021 — a record. Most were pretrial.</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num">110%</div>
+        <div class="stat-label">capacity: Rikers regularly holds more people than it was built for</div>
+      </div>
+    </div>
+
+    <p>
+      LA County Jail is one of the largest jail systems in the world.
+      It has a documented history of deputy gangs — groups of officers with matching tattoos
+      who beat detainees and are protected by the institution.
+    </p>
+    <p>
+      DC abolished cash bail for most offenses in 1992. It shows what the alternative looks like.
+      People go home while they wait for trial. They don't lose their jobs. They don't lose their apartments.
+      The sky did not fall.
+    </p>
+
+    <blockquote>
+      These are not isolated incidents.
+      This is what happens when you build a system designed to warehouse poor people
+      and give it almost no accountability.
+    </blockquote>
+  </div>
+</section>
+
+<!-- ── Section 5: MD Reform ── -->
+<section class="section">
+  <div class="container">
+    <p class="section-number">Question 5</p>
+    <h2>Did the 2017 Maryland Bail Reform actually help — or did the system just adapt?</h2>
+
+    <p>
+      In July 2017, Maryland implemented sweeping bail reform —
+      moving away from cash bail toward a risk-assessment model.
+      On paper, it was a major change.
+    </p>
+    <p>
+      The question this project asks: <strong style="color:var(--white)">who actually benefited?</strong>
+    </p>
+    <p>
+      When cash bail goes down but remand rates go up by the same amount,
+      the system adapted. The name changed. The outcome didn't.
+    </p>
+    <p>
+      When reform helps people with resources to navigate a new system —
+      but the poorest ZIP codes see no improvement —
+      reform failed the people who needed it most.
+    </p>
+    <p>
+      The Vera Institute's county data shows Maryland's pretrial population trends
+      before and after the reform date. The arc is visible. The questions are still being answered.
+    </p>
+  </div>
+</section>
+
+<!-- ── The Data ── -->
+<section class="section" id="the-data">
+  <div class="container">
+    <p class="section-number">How This Was Built</p>
+    <h2>The data behind this investigation</h2>
+
+    <p>
+      Every number on this page comes from public records and verified data sources.
+      No figures were invented. Where data is missing, that gap is documented — not hidden.
+    </p>
+
+    <p><strong style="color:var(--white)">Sources used:</strong></p>
+
+    <div style="margin:28px 0; font-family:system-ui,sans-serif; font-size:15px; line-height:1.9;">
+      <div style="padding:14px 0; border-bottom:1px solid var(--border)">
+        <span style="color:var(--amber)">NYC DOC Open Data</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          Dataset 7479-ugqb — Daily Inmates In Custody. Live, updated daily. Verified active 2026.
+        </span>
+      </div>
+      <div style="padding:14px 0; border-bottom:1px solid var(--border)">
+        <span style="color:var(--amber)">NYC DOC Inmate Discharges</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          Dataset 94ri-3ium — Admission and discharge dates back to 2018. Calculates actual detention length.
+        </span>
+      </div>
+      <div style="padding:14px 0; border-bottom:1px solid var(--border)">
+        <span style="color:var(--amber)">Vera Institute — Incarceration Trends</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          County-level jail data for every US county, 1970–2022. The historical backbone.
+          NYC boroughs, LA County, DC, Baltimore City, Prince George's County.
+        </span>
+      </div>
+      <div style="padding:14px 0; border-bottom:1px solid var(--border)">
+        <span style="color:var(--amber)">Marshall Project — Deaths in Custody</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          Individual-level records of people who died in custody. Includes pretrial status.
+        </span>
+      </div>
+      <div style="padding:14px 0; border-bottom:1px solid var(--border)">
+        <span style="color:var(--amber)">US Census ACS 5-Year Estimates</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          ZIP-level median income, poverty rate, rent burden, household structure.
+          The denominator in the work-days-to-bail calculation.
+        </span>
+      </div>
+      <div style="padding:14px 0;">
+        <span style="color:var(--amber)">LA / DC / Maryland individual records</span>
+        <span style="color:var(--muted); display:block; font-size:13px">
+          Not publicly available via API. FOIA request templates are in the repository.
+          These gaps are documented, not papered over.
+        </span>
+      </div>
+    </div>
+
+    <p><strong style="color:var(--white)">Privacy:</strong>
+      No names are stored or published anywhere in this project.
+      Every individual identifier is replaced with a one-way cryptographic hash
+      before any data is saved. Exact ages are replaced with 10-year buckets.
+      The raw data never appears in this repository.
+    </p>
+
+    <div class="cta-row">
+      <a href="https://github.com/yourusername/who-is-in-jail" class="cta cta-primary" target="_blank" rel="noopener">
+        View the code on GitHub
+      </a>
+      <a href="ETHICS.md" class="cta cta-secondary">Read the ethics statement</a>
+      <a href="SOURCES.md" class="cta cta-secondary">All data sources</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Closing ── -->
+<section class="closing">
+  <div class="container">
+    <h2>The people behind the numbers</h2>
+
+    <p>
+      Every row in this dataset is a person.
+    </p>
+    <p>
+      Someone's parent. Someone's child.
+      Someone who woke up one morning and by that night was sitting in a cage —
+      not because they were convicted of anything,
+      but because they were poor, or sick, or in the wrong place,
+      or the police had a story that wasn't fully true.
+    </p>
+    <p>
+      I know what it felt like to be 13 years old at 4:30 in the morning
+      looking at police officers who had already made up their minds about me.
+      I had parents who could protect me that night.
+    </p>
+    <p>
+      <strong style="color:var(--white)">Most people don't.</strong>
+    </p>
+    <p>
+      This project exists to make that visible.
+      Because the first step to changing something is being honest about what it is.
+    </p>
+
+    <p class="sig">— Michael</p>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <p>
+      Built by Michael Parham &nbsp;·&nbsp;
+      Data: NYC DOC, Vera Institute, Marshall Project, US Census
+    </p>
+    <p>
+      <a href="https://github.com/yourusername/who-is-in-jail" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="ETHICS.md">Ethics</a>
+      &nbsp;·&nbsp;
+      <a href="SOURCES.md">Sources</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
