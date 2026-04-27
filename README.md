@@ -137,7 +137,7 @@ who-is-in-jail/
 
 ```bash
 # 1. Clone and set up environment
-git clone https://github.com/yourusername/who-is-in-jail
+git clone https://github.com/miketitus2003-cloud/who-is-in-jail
 cd who-is-in-jail
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
