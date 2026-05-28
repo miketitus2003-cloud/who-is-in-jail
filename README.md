@@ -23,7 +23,7 @@ This is not a school project. This is not a portfolio piece.
 
 This is a data investigation into one of the most important civil rights questions in America:
 
-**Who is actually sitting in jail — and why?**
+**Who is actually sitting in jail and why?**
 
 Not who the police report says belongs there.
 Not the story the system tells about itself.
@@ -33,19 +33,19 @@ The real numbers. The real conditions. The real human cost.
 
 ## What the Data Shows
 
-The majority of people in America's largest jails — Rikers Island, LA County Jail,
+The majority of people in America's largest jails Rikers Island, LA County Jail,
 DC Jail, Baltimore City Detention Center — have not been convicted of anything.
 
 They are **legally innocent**. They are there because they are poor.
 
 A person with money gets arrested and goes home the same night.
 A person without money gets arrested and sits in a cage — sometimes for months,
-sometimes for years — waiting for a trial that may never come, or that eventually
+sometimes for years waiting for a trial that may never come, or that eventually
 clears them of everything.
 
 While they wait, they lose their job. Their apartment. Their children.
 Then they're offered a deal: plead guilty right now and go home today.
-Or stay here and wait — and risk a worse sentence if you lose.
+Or stay here and wait and risk a worse sentence if you lose.
 
 Most people take the deal.
 
@@ -66,7 +66,7 @@ Addiction is a medical condition.
 
 We lock people up for it instead of treating them.
 Then we give them a criminal record that makes it nearly impossible to get housing,
-employment, or stability when they get out — which makes relapse more likely, not less.
+employment, or stability when they get out which makes relapse more likely, not less.
 
 The data shows this. The data shows the cycle. This project makes that cycle visible.
 
@@ -77,7 +77,7 @@ The data shows this. The data shows the cycle. This project makes that cycle vis
 Rikers Island has been under federal investigation for years.
 People have died there waiting for trial — on charges that were later dropped.
 The violence, the medical neglect, the solitary confinement of people who
-haven't been convicted of anything — these aren't accidents. This is the system.
+haven't been convicted of anything these aren't accidents. This is the system.
 
 LA County Jail is one of the largest jail systems in the world.
 It has a documented history of deputy gangs, excessive force, and deaths in custody.
@@ -165,7 +165,7 @@ psql -U postgres -d jail_data -f sql/queries/innocence.sql
 Every row in this dataset is a person.
 
 Someone's parent. Someone's child. Someone who woke up one morning
-and by that night was sitting in a cage — not because they were convicted of anything,
+and by that night was sitting in a cage not because they were convicted of anything,
 but because they were poor, or sick, or in the wrong place, or the police
 had a story that wasn't fully true.
 
